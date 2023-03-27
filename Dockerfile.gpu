@@ -1,4 +1,4 @@
-ARG base=nvidia/cuda:11.6.2-cudnn8-runtime-ubuntu20.04
+ARG base=nvidia/cuda:11.3.0-cudnn8-runtime-ubuntu20.04
 
 FROM ${base}
 
@@ -12,7 +12,7 @@ ARG CONDA_VERSION=py310_22.11.1-1
 
 RUN apt update && \
     apt install -y --no-install-recommends \
-        wget \
+        wget python3-tk git libsndfile1-dev tesseract-ocr espeak-ng ffmpeg \
         ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
@@ -60,7 +60,9 @@ RUN pip install -r requirements.txt
 RUN mkdir -p /workspace
 
 COPY main.py workspace/
+RUN mkdir -p /workspace/src
+ADD src workspace/src
 
 WORKDIR /workspace
 
-ENTRYPOINT [ "python", "main.py" ]
+ENTRYPOINT [ "python", "main.py", "--input_audio_max_duration", "-1", "--server_name", "0.0.0.0", "--auto_parallel", "True"]
